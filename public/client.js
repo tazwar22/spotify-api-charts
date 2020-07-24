@@ -25,11 +25,12 @@ window.location.hash = '';
 let access_token = hash.access_token;
 
 const authEndpoint = 'https://accounts.spotify.com/authorize';
-
 // my app's client ID, redirect URI and desired scopes
-const clientId = '477fce2d987341da9f370b68cad9e026';
-const redirectUri = 'http://spotify-api-charts.herokuapp.com/callback';
+const clientId = '12338ce6eaaf45e3bca434aa434f4994';
+const redirectUri = 'http://localhost:4000/callback';
 const scopes = ['user-top-read', 'playlist-read-private', 'user-library-read'];
+
+
 
 // If there is no token, redirect to Spotify authorization
 if (!access_token) {
@@ -37,8 +38,12 @@ if (!access_token) {
 }
 // END SETUP ===========================================================================
 
+
+
+
 // FIRST THING'S FIRST -- GET USER INFO. ===========================================================================
 $(document).ready(function() {
+
     $.ajax({
         url: "https://api.spotify.com/v1/me",
         type: "GET",
@@ -67,6 +72,8 @@ function startApp() {
         $('.definitions').hide();
     });
 
+
+
     // Navigation
     $('#enter').on('click', function() {
         $('#intro').hide();
@@ -75,17 +82,38 @@ function startApp() {
 
     $('#next1').on('click', function() {
         $('#topArtists').hide();
-        $('#myFaves').fadeIn('fast');
-        $('.definitions').hide();
-        $('.showDefinitions').hide();
+
+        // $('#myFaves').fadeIn('fast');
+        // $('.definitions').hide();
+        // $('.showDefinitions').hide();
+
+        //Show the last section instead
+        $('#end').fadeIn('fast');
+
     });
+
+
+
+
 
     $('#back1').on('click', function() {
-        $('#intro').fadeIn('fast');
-        $('#topArtists').hide();
-        $('.definitions').hide();
-
+        $('#topArtists').fadeIn('fast');
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     $('#next3').on('click', function() {
         $('#myFaves').hide();
@@ -113,30 +141,65 @@ function startApp() {
         $('.definitions').hide();
     });
 
+
+
+
+
+    
     $('#restart').on('click', function() {
         $('#end').hide();
         $('#intro').fadeIn('fast');
     });
 
 
+
+
+
+
+
     // USER TOP ARTISTS LONG TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     $('#enter').on('click', function() {
-        console.log("calling d3 chart");
+        // console.log("calling d3 chart");
         $.ajax({
-            url: "https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=50",
+            url: "https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=50&offset=0",
             type: "GET",
             beforeSend: function(xhr) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
             },
             success: function(data) {
+
+                var temp = data.items[0];
+
+                // var data = Array.prototype.slice.call(data);
+                data.items.unshift(temp);
+
+
                 var preMyJSON = JSON.stringify(data.items);
                 var myJSON = JSON.parse(preMyJSON);
-                console.log("calling d3 chart");
-                var chart = bubbleChart(myJSON).width(400).height(400);
+
+                console.log("Successfully got data from Spotify... calling D3.JS");
+
+                //This function draws the Bubble chart
+                var chart = bubbleChart(myJSON);
+
+                //Very important to add second parameter so that second row is not skipped 
+                //, function(d, i) { return d + i; }
+
                 d3.select('#bubbleChart').data(myJSON).call(chart);
             }
         });
     });
+
+
+
+
+
+
+
+
+
+
+
 
     // USER TOP ARTISTS SHORT TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     $('#getTopArtistsShort').on('click', function() {
@@ -158,6 +221,12 @@ function startApp() {
             }
         });
     });
+
+
+
+
+
+
 
     // SEARCH INDIV TRACK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     $('form').submit(function(e) {
@@ -204,6 +273,11 @@ function startApp() {
             }
         });
     });
+
+
+
+
+
 
     // USER TOP TRACKS Long TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     $("#getFaveAudioFeatures").on('click', function() {
@@ -317,8 +391,12 @@ function startApp() {
                     return track.id;
                 });
 
+                console.log(`Track IDs: ${ids}`)
+
                 // array to string
                 var idString = ids.join();
+
+                console.log(`Track IDs: ${idString}`)
 
                 //call other function to do other ajax req
                 getAudioFeatures(idString);
@@ -395,15 +473,23 @@ function startApp() {
 //bubbleChart
 function bubbleChart() {
 
-    var width = '400',
-        height = 400,
+    var width = 700,
+        height = 500,
         columnForColors = "name",
         columnForRadius = "popularity";
 
     function chart(selection) {
+
+
+
         var data = selection.enter().data();
+        console.log(data)
+
         var div = selection,
             svg = div.selectAll('svg');
+
+
+
         svg.attr('width', width).attr('height', height);
 
         var tooltip = selection.append("div").style("position", "absolute").style("visibility", "hidden").style("text-decoration", "none").style("padding", "12px").style("background-color", "rgb(230, 230, 230)").style("border-radius", "4px").style("text-align", "left").style("font-family", "helvetica").style("width", "200px").style("line-height", "150%").text("");
@@ -418,6 +504,12 @@ function bubbleChart() {
             });
         }
 
+        var artistNames = data.forEach((entry, ii)=>{
+            console.log(`${ii+1}) ${entry.name}`)
+        })
+
+
+
         var scaleRadius = d3.scaleLinear().domain([
             d3.min(data, function(d) {
                 return + d[columnForRadius];
@@ -427,6 +519,9 @@ function bubbleChart() {
             })
         ]).range([10, 30]);
 
+
+
+        //Manipulate the blobs
         var node = svg.selectAll("circle").data(data).enter().append("circle").attr('r', function(d) {
             return scaleRadius(d[columnForRadius]);
         }).style("fill", function() {
@@ -444,7 +539,11 @@ function bubbleChart() {
         });
     }
 
+
+
     chart.width = function(value) {
+        // console.log(value)
+
         if (!arguments.length) {
             return width;
         }
@@ -459,6 +558,9 @@ function bubbleChart() {
         height = value;
         return chart;
     };
+
+
+
     return chart;
 }
 
