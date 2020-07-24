@@ -170,7 +170,6 @@ function startApp() {
 
                 var temp = data.items[0];
 
-                // var data = Array.prototype.slice.call(data);
                 data.items.unshift(temp);
 
 
@@ -473,10 +472,10 @@ function startApp() {
 //bubbleChart
 function bubbleChart() {
 
-    var width = 700,
-        height = 500,
+    var width = 900,
+        height = 900,
         columnForColors = "name",
-        columnForRadius = "popularity";
+        columnForRadius = "index";
 
     function chart(selection) {
 
@@ -492,51 +491,91 @@ function bubbleChart() {
 
         svg.attr('width', width).attr('height', height);
 
-        var tooltip = selection.append("div").style("position", "absolute").style("visibility", "hidden").style("text-decoration", "none").style("padding", "12px").style("background-color", "rgb(230, 230, 230)").style("border-radius", "4px").style("text-align", "left").style("font-family", "helvetica").style("width", "200px").style("line-height", "150%").text("");
+        var tooltip = selection
+                .append("div")
+                .style("position", "absolute")
+                .style("visibility", "hidden")
+                .style("text-decoration", "none")
+                .style("padding", "12px")
+                .style("background-color", "rgb(230, 230, 230)")
+                .style("border-radius", "4px")
+                .style("text-align", "left")
+                .style("font-family", "helvetica")
+                .style("width", "200px").style("line-height", "150%").text("");
 
-        var simulation = d3.forceSimulation(data).force("charge", d3.forceManyBody().strength([-90])).force("x", d3.forceX()).force("y", d3.forceY()).on("tick", ticked);
+        var simulation = d3.forceSimulation(data)
+                            .force("charge", d3.forceManyBody().strength([-90]))
+                            .force("x", d3.forceX())
+                            .force("y", d3.forceY())
+                            .on("tick", ticked);
+
+
+
+
+
 
         function ticked(e) {
             node.attr("cx", function(d) {
-                return d.x * 1;
+                return d.x * 2;
             }).attr("cy", function(d) {
-                return d.y * 1;
+                return d.y * 1.8;
             });
         }
 
-        var artistNames = data.forEach((entry, ii)=>{
-            console.log(`${ii+1}) ${entry.name}`)
-        })
+        // var artistNames = data.forEach((entry, ii)=>{
+        //     console.log(`${ii+1}) ${entry.name}`)
+        // })
 
 
 
+        //Invert based on order
         var scaleRadius = d3.scaleLinear().domain([
-            d3.min(data, function(d) {
-                return + d[columnForRadius];
-            }),
             d3.max(data, function(d) {
                 return + d[columnForRadius];
             })
-        ]).range([10, 30]);
+            ,
+            d3.min(data, function(d) {
+                return + d[columnForRadius];
+            }),
+        ]).range([10, 45]);
 
 
 
         //Manipulate the blobs
-        var node = svg.selectAll("circle").data(data).enter().append("circle").attr('r', function(d) {
-            return scaleRadius(d[columnForRadius]);
-        }).style("fill", function() {
-            return '#d53e4f';
-        }).attr('transform', 'translate(' + [
-            width / 2,
-            height / 2
-        ] + ')').on("mouseover", function(d) {
-            tooltip.html(d[columnForColors] + "<br>" + "Followers: " + d.followers.total + "<br>" + "Popularity: " + d[columnForRadius]);
-            return tooltip.style("visibility", "visible");
-        }).on("mousemove", function() {
-            return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
-        }).on("mouseout", function() {
-            return tooltip.style("visibility", "hidden");
-        });
+        var node = svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr('r', function(d) {
+
+                    // return Math.abs(60 - d.index);
+
+                    return scaleRadius(d[columnForRadius]);
+                    })
+                .style("fill", function() {
+                    return '#d53e4f';
+                })
+                .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
+                .on("mouseover", function(d) {
+
+                    let artistImageTag = `<img src = "${d.images[1].url}" alt = "Artist Image" width="200" height="200">`
+
+                    let htmlText = d[columnForColors] 
+                    + "<br>" + "Followers: " + d.followers.total 
+                    + "<br>" + "Popularity: " + d[columnForRadius]
+                    + "<br>"
+                    + artistImageTag;
+
+                    tooltip.html(htmlText);
+
+                    return tooltip.style("visibility", "visible");
+                })
+                .on("mousemove", function() {
+                    return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
+                })
+                .on("mouseout", function() {
+                    return tooltip.style("visibility", "hidden");
+                });
     }
 
 
@@ -560,9 +599,19 @@ function bubbleChart() {
     };
 
 
-
     return chart;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 // GET: audio features based on single track
