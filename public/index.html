@@ -38,13 +38,24 @@
                     <h1 id="title2">You have great taste in music.</h1>
                     <p>Here's a collection of some of your top artists on Spotify, based on your  behavior and play history —- not including tracks played in incognito mode. Placement is randomly generated, and each circle size represents the artist's popularity across Spotify.</p>
                     <br />
+
                     <div id="bubbleChart">
                         <svg></svg>
                     </div>
+
                     <br />
+
+
                     <p class="footnote">* Infrequent users of Spotify may not have enough data to generate full dataset.</p>
+
                     <div class="fancyButton">
                         <button class="back" id="back1"><span>BACK</span></button>
+
+                        <button class="back" id="long-term-top-bubbles"><span>ALL TIME</span></button>
+                        <button class="back" id="medium-term-top-bubbles"><span>LAST 6 MONTHS</span></button>
+                        <button class="back" id="short-term-top-bubbles"><span>LAST MONTH</span></button>
+
+
                         <button class="next" id="next1"><span>NEXT</span></button>
                      </div>
                  </div>
@@ -155,7 +166,7 @@
 
 
 
-        
+
     </div>
 
 
@@ -179,6 +190,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js "></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
     <script src="public/client.js" charset="utf-8"></script>
+
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 </body>
 
 </html>

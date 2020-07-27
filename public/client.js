@@ -158,7 +158,10 @@ function startApp() {
 
 
     // USER TOP ARTISTS LONG TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    $('#enter').on('click', function() {
+    $('#enter , #medium-term-top-bubbles').on('click', function() {
+
+
+
         // console.log("calling d3 chart");
         $.ajax({
             url: "https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=50&offset=0",
@@ -167,6 +170,10 @@ function startApp() {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
             },
             success: function(data) {
+
+                
+                d3.selectAll("g > *").remove()
+
 
                 var temp = data.items[0];
 
@@ -178,16 +185,84 @@ function startApp() {
 
                 console.log("Successfully got data from Spotify... calling D3.JS");
 
+
                 //This function draws the Bubble chart
                 var chart = bubbleChart(myJSON);
 
-                //Very important to add second parameter so that second row is not skipped 
-                //, function(d, i) { return d + i; }
 
                 d3.select('#bubbleChart').data(myJSON).call(chart);
             }
         });
     });
+
+
+
+    $('#long-term-top-bubbles').on('click', function() {
+
+
+        // console.log("calling d3 chart");
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50&offset=0",
+            type: "GET",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+            },
+            success: function(data) {
+
+                d3.selectAll("g > *").remove()
+
+                var temp = data.items[0];
+                data.items.unshift(temp);
+
+                var preMyJSON = JSON.stringify(data.items);
+                var myJSON = JSON.parse(preMyJSON);
+
+                console.log("Successfully got data from Spotify... calling D3.JS");
+
+                //This function draws the Bubble chart
+                var chart = bubbleChart(myJSON);
+
+                d3.select('#bubbleChart').data(myJSON).call(chart);
+            }
+        });
+    });
+
+
+
+    $('#short-term-top-bubbles').on('click', function() {
+
+
+        // console.log("calling d3 chart");
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50&offset=0",
+            type: "GET",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+            },
+            success: function(data) {
+
+                d3.selectAll("g > *").remove()
+
+                var temp = data.items[0];
+                data.items.unshift(temp);
+
+                var preMyJSON = JSON.stringify(data.items);
+                var myJSON = JSON.parse(preMyJSON);
+
+                console.log("Successfully got data from Spotify... calling D3.JS");
+
+                //This function draws the Bubble chart
+                var chart = bubbleChart(myJSON);
+                d3.select('#bubbleChart').data(myJSON).call(chart);
+            }
+        });
+    });
+
+
+
+
+
+
 
 
 
@@ -540,6 +615,11 @@ function bubbleChart() {
         ]).range([10, 45]);
 
 
+        var colorScaler = d3.scaleSequential()
+                        .domain([0, 100])
+                        .interpolator(d3.interpolateGreens);
+
+
 
         //Manipulate the blobs
         var node = svg.selectAll("circle")
@@ -552,8 +632,8 @@ function bubbleChart() {
 
                     return scaleRadius(d[columnForRadius]);
                     })
-                .style("fill", function() {
-                    return '#d53e4f';
+                .style("fill", function(d) {
+                    return colorScaler(d.popularity);
                 })
                 .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
                 .on("mouseover", function(d) {
