@@ -186,7 +186,10 @@ function startApp() {
                 //This function draws the Bubble chart
                 var chart = bubbleChart(myJSON);
 
+                console.log(d3.select('#bubbleChart'))
+                d3.select('#bubbleChart').selectAll("svg").remove();
 
+                d3.select('#bubbleChart').append("svg")
                 d3.select('#bubbleChart').data(myJSON).call(chart);
             }
         });
@@ -216,7 +219,10 @@ function startApp() {
 
                 //This function draws the Bubble chart
                 var chart = bubbleChart(myJSON);
+                console.log("Clearing previous...")
+                d3.select('#bubbleChart').selectAll("svg").remove();
 
+                d3.select('#bubbleChart').append("svg")
                 d3.select('#bubbleChart').data(myJSON).call(chart);
             }
         });
@@ -247,6 +253,11 @@ function startApp() {
 
                 //This function draws the Bubble chart
                 var chart = bubbleChart(myJSON);
+
+                console.log("Clearing previous...")
+                d3.select('#bubbleChart').selectAll("svg").remove();
+
+                d3.select('#bubbleChart').append("svg")
                 d3.select('#bubbleChart').data(myJSON).call(chart);
             }
         });
