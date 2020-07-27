@@ -171,9 +171,6 @@ function startApp() {
             },
             success: function(data) {
 
-                
-                d3.selectAll("g > *").remove()
-
 
                 var temp = data.items[0];
 
@@ -209,8 +206,6 @@ function startApp() {
             },
             success: function(data) {
 
-                d3.selectAll("g > *").remove()
-
                 var temp = data.items[0];
                 data.items.unshift(temp);
 
@@ -241,7 +236,6 @@ function startApp() {
             },
             success: function(data) {
 
-                d3.selectAll("g > *").remove()
 
                 var temp = data.items[0];
                 data.items.unshift(temp);
@@ -595,6 +589,16 @@ function bubbleChart() {
             }).attr("cy", function(d) {
                 return d.y * 1.8;
             });
+
+
+            nodeLabels.attr('x', (data) => {
+                return data.x*2;
+            })
+            .attr('y', (data) => {
+                return data.y*1.8
+            });
+
+
         }
 
         // var artistNames = data.forEach((entry, ii)=>{
@@ -638,11 +642,14 @@ function bubbleChart() {
                 .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
                 .on("mouseover", function(d) {
 
+                    d3.select(this)
+                        .style('opacity', '0.2')
+
                     let artistImageTag = `<img src = "${d.images[1].url}" alt = "Artist Image" width="200" height="200">`
 
                     let htmlText = d[columnForColors] 
                     + "<br>" + "Followers: " + d.followers.total 
-                    + "<br>" + "Popularity: " + d[columnForRadius]
+                    + "<br>" + "Popularity: " + d.popularity
                     + "<br>"
                     + artistImageTag;
 
@@ -654,8 +661,24 @@ function bubbleChart() {
                     return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
                 })
                 .on("mouseout", function() {
+                    
+                    d3.select(this)
+                        .style('opacity', '1')
+
                     return tooltip.style("visibility", "hidden");
                 });
+
+
+
+            //Label the nodes
+            let nodeLabels = svg.selectAll(null)
+                .data(data)
+                .enter()
+                .append('text')
+                .text(d => (d.index+1).toString())
+                .attr('color', 'white')
+                .attr('font-size', 20)
+                .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
     }
 
 
