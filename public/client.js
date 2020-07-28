@@ -157,14 +157,25 @@ function startApp() {
 
 
 
-    // USER TOP ARTISTS LONG TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    $('#enter , #medium-term-top-bubbles').on('click', function() {
+    // USER TOP ARTISTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    $('#enter , #medium_term, #short_term, #long_term').on('click', function() {
 
+        var period = "medium_term"  //Default
+
+        if (this.id == 'enter'){
+            console.log("ENTERING...")
+        }
+        else {
+            period = this.id.toString()
+        }
+        console.log(`Getting data for ${period}`);
+        //Form proper query
+        var queryURL = `https://api.spotify.com/v1/me/top/artists?time_range=${period}&limit=50&offset=0`;
 
 
         // console.log("calling d3 chart");
         $.ajax({
-            url: "https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=50&offset=0",
+            url: queryURL,
             type: "GET",
             beforeSend: function(xhr) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
@@ -193,95 +204,6 @@ function startApp() {
             }
         });
     });
-
-
-
-    $('#long-term-top-bubbles').on('click', function() {
-
-
-        // console.log("calling d3 chart");
-        $.ajax({
-            url: "https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50&offset=0",
-            type: "GET",
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-            },
-            success: function(data) {
-
-                var temp = data.items[0];
-                data.items.unshift(temp);
-
-                var preMyJSON = JSON.stringify(data.items);
-                var myJSON = JSON.parse(preMyJSON);
-
-                console.log("Successfully got data from Spotify... calling D3.JS");
-
-                //This function draws the Bubble chart
-                var chart = bubbleChart(myJSON);
-                console.log("Clearing previous...")
-                d3.select('#bubbleChart').selectAll("svg").remove();
-
-                d3.select('#bubbleChart').append("svg")
-                d3.select('#bubbleChart').data(myJSON).call(chart);
-            }
-        });
-    });
-
-
-
-    $('#short-term-top-bubbles').on('click', function() {
-
-
-        // console.log("calling d3 chart");
-        $.ajax({
-            url: "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50&offset=0",
-            type: "GET",
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-            },
-            success: function(data) {
-
-
-                var temp = data.items[0];
-                data.items.unshift(temp);
-
-                var preMyJSON = JSON.stringify(data.items);
-                var myJSON = JSON.parse(preMyJSON);
-
-                console.log("Successfully got data from Spotify... calling D3.JS");
-
-                //This function draws the Bubble chart
-                var chart = bubbleChart(myJSON);
-
-                console.log("Clearing previous...")
-                d3.select('#bubbleChart').selectAll("svg").remove();
-
-                d3.select('#bubbleChart').append("svg")
-                d3.select('#bubbleChart').data(myJSON).call(chart);
-            }
-        });
-    });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -628,15 +550,18 @@ function bubbleChart() {
 
 
         function ticked(e) {
-            node.attr("cx", function(d) {
+            node
+            .attr("cx", function(d) {
                 return d.x ;
-            }).attr("cy", function(d) {
+            })
+            .attr("cy", function(d) {
                 return d.y ;
             });
 
 
-            nodeLabels.attr('x', (data) => {
-                return data.x;
+            nodeLabels
+            .attr('x', (data) => {
+                return data.x-10;
             })
             .attr('y', (data) => {
                 return data.y;
