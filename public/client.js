@@ -186,7 +186,6 @@ function startApp() {
                 //This function draws the Bubble chart
                 var chart = bubbleChart(myJSON);
 
-                console.log(d3.select('#bubbleChart'))
                 d3.select('#bubbleChart').selectAll("svg").remove();
 
                 d3.select('#bubbleChart').append("svg")
@@ -262,6 +261,12 @@ function startApp() {
             }
         });
     });
+
+
+
+
+
+
 
 
 
@@ -552,8 +557,8 @@ function startApp() {
 //bubbleChart
 function bubbleChart() {
 
-    var width = 900,
-        height = 900,
+    var width = 1200,
+        height = 1200,
         columnForColors = "name",
         columnForRadius = "index";
 
@@ -566,6 +571,28 @@ function bubbleChart() {
 
         var div = selection,
             svg = div.selectAll('svg');
+
+
+
+
+
+        // //Collect unique
+        // let genreSet = new Set()
+        // data.forEach((entry, ii)=>{
+        //     let genres = entry.genres
+        //     let primaryGenre = genres[0].split(" ");
+        //     genreSet.add(primaryGenre[primaryGenre.length - 1]);
+        // })
+
+        // console.log(genreSet)
+
+        // var centerFinder = {};
+        // genreSet.forEach((entry, ii)=>{
+        //     console.log(entry)
+        //     centerFinder[entry] = (ii+1)*100;
+
+        // })
+        
 
 
 
@@ -583,8 +610,14 @@ function bubbleChart() {
                 .style("font-family", "helvetica")
                 .style("width", "200px").style("line-height", "150%").text("");
 
+
+
+
+
+
+
         var simulation = d3.forceSimulation(data)
-                            .force("charge", d3.forceManyBody().strength([-90]))
+                            .force("charge", d3.forceManyBody().strength([-400]))
                             .force("x", d3.forceX())
                             .force("y", d3.forceY())
                             .on("tick", ticked);
@@ -596,25 +629,26 @@ function bubbleChart() {
 
         function ticked(e) {
             node.attr("cx", function(d) {
-                return d.x * 2;
+                return d.x ;
             }).attr("cy", function(d) {
-                return d.y * 1.8;
+                return d.y ;
             });
 
 
             nodeLabels.attr('x', (data) => {
-                return data.x*2;
+                return data.x;
             })
             .attr('y', (data) => {
-                return data.y*1.8
+                return data.y;
             });
 
 
         }
 
-        // var artistNames = data.forEach((entry, ii)=>{
-        //     console.log(`${ii+1}) ${entry.name}`)
-        // })
+
+        function formatNumber(num) {
+            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+          }
 
 
 
@@ -627,12 +661,13 @@ function bubbleChart() {
             d3.min(data, function(d) {
                 return + d[columnForRadius];
             }),
-        ]).range([10, 45]);
+        ]).range([20, 50]);
+
 
 
         var colorScaler = d3.scaleSequential()
-                        .domain([0, 100])
-                        .interpolator(d3.interpolateGreens);
+                            .domain([1, 50])
+                            .interpolator(d3.interpolateBlues);
 
 
 
@@ -642,39 +677,37 @@ function bubbleChart() {
                 .enter()
                 .append("circle")
                 .attr('r', function(d) {
-
-                    // return Math.abs(60 - d.index);
-
                     return scaleRadius(d[columnForRadius]);
                     })
                 .style("fill", function(d) {
-                    return colorScaler(d.popularity);
+                    return colorScaler(d.index+1);
                 })
                 .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
                 .on("mouseover", function(d) {
 
                     d3.select(this)
-                        .style('opacity', '0.2')
+                        .style('opacity', '0.6')
+                        .style('stroke', "black")
+                        .style("stroke-width", 8)
 
                     let artistImageTag = `<img src = "${d.images[1].url}" alt = "Artist Image" width="200" height="200">`
 
                     let htmlText = d[columnForColors] 
-                    + "<br>" + "Followers: " + d.followers.total 
-                    + "<br>" + "Popularity: " + d.popularity
-                    + "<br>"
-                    + artistImageTag;
-
+                                    + "<br>" + "Followers: " + formatNumber(d.followers.total)
+                                    + "<br>" + "Popularity: " + d.popularity
+                                    + "<br>"
+                                    + artistImageTag;
                     tooltip.html(htmlText);
-
                     return tooltip.style("visibility", "visible");
                 })
                 .on("mousemove", function() {
                     return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
                 })
                 .on("mouseout", function() {
-                    
+
                     d3.select(this)
                         .style('opacity', '1')
+                        .style('stroke', "none")
 
                     return tooltip.style("visibility", "hidden");
                 });
@@ -686,6 +719,7 @@ function bubbleChart() {
                 .data(data)
                 .enter()
                 .append('text')
+                .attr("pointer-events", "none")
                 .text(d => (d.index+1).toString())
                 .attr('color', 'white')
                 .attr('font-size', 20)
