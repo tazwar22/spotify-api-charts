@@ -635,6 +635,14 @@ function bubbleChart() {
                         .style('stroke', "none")
 
                     return tooltip.style("visibility", "hidden");
+                })
+                .on("click", function(d){
+                    console.log(d);
+
+                    d3.select('.selected-artist-box')
+                        .html(JSON.stringify(d))
+
+
                 });
 
 

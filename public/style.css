@@ -329,6 +329,28 @@ footer p {
     font-size: 15px;
 }
 
+
+
+
+/* Artist Stats  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+.selected-artist-box {color: #6F257F;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* MEDIA QUERIES  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 @media screen and (max-width: 800px) {
