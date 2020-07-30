@@ -60,6 +60,11 @@ $(document).ready(function() {
     });
 });
 
+
+
+var topTracksData = {};
+
+
 // START APP ===========================================================================
 function startApp() {
 
@@ -160,6 +165,8 @@ function startApp() {
     // USER TOP ARTISTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     $('#enter , #medium_term, #short_term, #long_term').on('click', function() {
 
+        console.clear()
+
         var period = "medium_term"  //Default
 
         if (this.id == 'enter'){
@@ -171,6 +178,63 @@ function startApp() {
         console.log(`Getting data for ${period}`);
         //Form proper query
         var queryURL = `https://api.spotify.com/v1/me/top/artists?time_range=${period}&limit=50&offset=0`;
+
+
+
+        //Get top tracks and store in memory
+        $.ajax({
+            url: `https://api.spotify.com/v1/me/top/tracks?time_range=${period}&limit=50&offset=0`,
+            type: "GET",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+            },
+            success: function(data) {
+
+
+                topTracksData = {} //Refresh
+
+
+                data.items.forEach((entry, ii)=>{
+
+                    // console.log(entry.artists)
+                    // console.log(`${ii+1}) ${entry.name} by ${entry.artists[0].name.toString()}`);
+
+                    let songName = entry.name,
+                        artistsOnTrack = entry.artists;
+                    
+                    artistsOnTrack.forEach((entry, ii)=>{
+
+                        let artist = entry.name
+
+
+                        // console.log(`Artist: ${artist}`)
+
+                        if (artist in topTracksData) {
+                            // console.log("Artist already in DICT...");
+                            topTracksData[artist].push(songName);
+                        }else{
+                            var mostListenedTracks = new Array(songName)
+                            topTracksData[artist] = mostListenedTracks //Initialize
+                        }
+                    })
+                    
+
+                })
+
+
+                
+                console.log("Done forming dictionary... \n")
+                // console.log(topTracksData)
+
+                var preMyJSON = JSON.stringify(data.items);
+                var myJSON = JSON.parse(preMyJSON);
+
+                console.log("Successfully got data from Spotify... calling D3.JS");
+                // console.log(myJSON)
+                
+
+            }
+        });
 
 
         // console.log("calling d3 chart");
@@ -479,6 +543,9 @@ function startApp() {
 //bubbleChart
 function bubbleChart() {
 
+    console.log(window.topTracksData)
+
+
     var width = 1200,
         height = 1200,
         columnForColors = "name",
@@ -639,8 +706,11 @@ function bubbleChart() {
                 .on("click", function(d){
                     console.log(d);
 
+                    console.log(topTracksData[d.name])
                     d3.select('.selected-artist-box')
-                        .html(JSON.stringify(d))
+                        .html(JSON.stringify(topTracksData[d.name]))
+
+                 
 
 
                 });
