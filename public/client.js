@@ -191,7 +191,7 @@ function startApp() {
             success: function(data) {
 
 
-                topTracksData = {} //Refresh
+                window.topTracksData = {} //Refresh
 
 
                 data.items.forEach((entry, ii)=>{
@@ -211,10 +211,10 @@ function startApp() {
 
                         if (artist in topTracksData) {
                             // console.log("Artist already in DICT...");
-                            topTracksData[artist].push(songName);
+                            window.topTracksData[artist].push(songName);
                         }else{
                             var mostListenedTracks = new Array(songName)
-                            topTracksData[artist] = mostListenedTracks //Initialize
+                            window.topTracksData[artist] = mostListenedTracks //Initialize
                         }
                     })
                     
@@ -224,49 +224,52 @@ function startApp() {
 
                 
                 console.log("Done forming dictionary... \n")
-                // console.log(topTracksData)
+                // console.log(winodw.topTracksData)
 
                 var preMyJSON = JSON.stringify(data.items);
                 var myJSON = JSON.parse(preMyJSON);
 
                 console.log("Successfully got data from Spotify... calling D3.JS");
                 // console.log(myJSON)
+
+
+                  // console.log("calling d3 chart");
+                $.ajax({
+                    url: queryURL,
+                    type: "GET",
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                    },
+                    success: function(data) {
+
+
+                        var temp = data.items[0];
+
+                        data.items.unshift(temp);
+
+
+                        var preMyJSON = JSON.stringify(data.items);
+                        var myJSON = JSON.parse(preMyJSON);
+
+                        console.log("Successfully got data from Spotify... calling D3.JS");
+
+
+                        //This function draws the Bubble chart
+                        var chart = bubbleChart(myJSON);
+
+                        d3.select('#bubbleChart').selectAll("svg").remove();
+
+                        d3.select('#bubbleChart').append("svg")
+                        d3.select('#bubbleChart').data(myJSON).call(chart);
+                    }
+                });
                 
 
             }
         });
 
 
-        // console.log("calling d3 chart");
-        $.ajax({
-            url: queryURL,
-            type: "GET",
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-            },
-            success: function(data) {
-
-
-                var temp = data.items[0];
-
-                data.items.unshift(temp);
-
-
-                var preMyJSON = JSON.stringify(data.items);
-                var myJSON = JSON.parse(preMyJSON);
-
-                console.log("Successfully got data from Spotify... calling D3.JS");
-
-
-                //This function draws the Bubble chart
-                var chart = bubbleChart(myJSON);
-
-                d3.select('#bubbleChart').selectAll("svg").remove();
-
-                d3.select('#bubbleChart').append("svg")
-                d3.select('#bubbleChart').data(myJSON).call(chart);
-            }
-        });
+      
     });
 
 
@@ -672,6 +675,7 @@ function bubbleChart() {
                     return scaleRadius(d[columnForRadius]);
                     })
                 .style("fill", function(d) {
+                    if (window.topTracksData[d.name]==undefined){return "red"}
                     return colorScaler(d.index+1);
                 })
                 .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
@@ -704,11 +708,11 @@ function bubbleChart() {
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(d){
-                    console.log(d);
+                    // console.log(d);
 
-                    console.log(topTracksData[d.name])
-                    d3.select('.selected-artist-box')
-                        .html(JSON.stringify(topTracksData[d.name]))
+                    console.log(window.topTracksData[d.name])
+                    // d3.select('.selected-artist-box')
+                    //     .html(JSON.stringify(topTracksData[d.name]))
 
                  
 
