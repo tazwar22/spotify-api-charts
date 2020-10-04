@@ -53,7 +53,6 @@ $(document).ready(function() {
         success: function(data) {
             // Once I get the user info, set up the template and run everything
             document.body.innerHTML = Handlebars.templates.main({name: data.display_name});
-
             // startApp is everything
             startApp();
         }
@@ -166,19 +165,19 @@ function startApp() {
     $('#enter , #medium_term, #short_term, #long_term').on('click', function() {
 
         console.clear()
-
         var period = "medium_term"  //Default
 
         if (this.id == 'enter'){
             console.log("ENTERING...")
         }
         else {
-            period = this.id.toString()
+            period = this.id.toString();
         }
         console.log(`Getting data for ${period}`);
+
+
         //Form proper query
         var queryURL = `https://api.spotify.com/v1/me/top/artists?time_range=${period}&limit=50&offset=0`;
-
 
 
         //Get top tracks and store in memory
@@ -195,10 +194,6 @@ function startApp() {
 
 
                 data.items.forEach((entry, ii)=>{
-
-                    // console.log(entry.artists)
-                    // console.log(`${ii+1}) ${entry.name} by ${entry.artists[0].name.toString()}`);
-
                     let songName = entry.name,
                         artistsOnTrack = entry.artists;
                     
@@ -224,16 +219,11 @@ function startApp() {
 
                 
                 console.log("Done forming dictionary... \n")
-                // console.log(winodw.topTracksData)
-
                 var preMyJSON = JSON.stringify(data.items);
                 var myJSON = JSON.parse(preMyJSON);
 
                 console.log("Successfully got data from Spotify... calling D3.JS");
-                // console.log(myJSON)
 
-
-                  // console.log("calling d3 chart");
                 $.ajax({
                     url: queryURL,
                     type: "GET",
@@ -244,21 +234,16 @@ function startApp() {
 
 
                         var temp = data.items[0];
-
                         data.items.unshift(temp);
-
-
                         var preMyJSON = JSON.stringify(data.items);
                         var myJSON = JSON.parse(preMyJSON);
 
                         console.log("Successfully got data from Spotify... calling D3.JS");
 
-
                         //This function draws the Bubble chart
                         var chart = bubbleChart(myJSON);
 
                         d3.select('#bubbleChart').selectAll("svg").remove();
-
                         d3.select('#bubbleChart').append("svg")
                         d3.select('#bubbleChart').data(myJSON).call(chart);
                     }
@@ -274,26 +259,26 @@ function startApp() {
 
 
 
-    // USER TOP ARTISTS SHORT TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    $('#getTopArtistsShort').on('click', function() {
-        $.ajax({
-            url: "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50",
-            type: "GET",
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-            },
-            success: function(data) {
-                console.log("User top artists short term", data.items);
+    // // USER TOP ARTISTS SHORT TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // $('#getTopArtistsShort').on('click', function() {
+    //     $.ajax({
+    //         url: "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50",
+    //         type: "GET",
+    //         beforeSend: function(xhr) {
+    //             xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    //         },
+    //         success: function(data) {
+    //             console.log("User top artists short term", data.items);
 
-                // chart goes here
+    //             // chart goes here
 
-                data.items.map(function(artist) {
-                    let item = $('<li>' + artist.name + '</li>');
-                    item.appendTo($('#top-artists-short'));
-                });
-            }
-        });
-    });
+    //             data.items.map(function(artist) {
+    //                 let item = $('<li>' + artist.name + '</li>');
+    //                 item.appendTo($('#top-artists-short'));
+    //             });
+    //         }
+    //     });
+    // });
 
 
 
