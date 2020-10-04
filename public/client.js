@@ -184,8 +184,6 @@ function startApp() {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
             },
             success: function(data) {
-
-
                 var temp = data.items[0];
                 data.items.unshift(temp);
                 var preMyJSON = JSON.stringify(data.items);
@@ -588,8 +586,32 @@ function bubbleChart() {
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(d){
-                    console.log("Clicking..")
-                    console.log(d)
+                    console.log("Getting info for artist..")
+                    $.ajax({
+                        url: "https://api.spotify.com/v1/artists/" + d.id +"/related-artists",
+                        type: "GET",
+                        dataType: "json",
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        },
+                        success: function(data) {  
+                                    //Clear list
+                                    d3
+                                    .select('#similar-artists')
+                                    .html("")
+                                    //Populate with SImilar Artists
+                                    data.artists.forEach((artist, ii)=>{
+                                        d3
+                                        .select('#similar-artists')
+                                        .append('li')
+                                        .html(artist.name);
+                                    })
+
+                        },error: function(err){
+                            console.log(err)
+                        }
+                    });
+
 
                 });
 
@@ -684,47 +706,3 @@ function trackFeatures(id) {
 
 
 
-
-
-// CHART: individual audio features
-function indivAudioFeaturesChart(features) {
-    $('.showDefinitions').fadeIn('fast');
-
-    $('#indivAudioFeaturesChart').empty();
-
-    var barChart = new britecharts.bar();
-    var chartTooltip = new britecharts.miniTooltip();
-
-    var chartContainer = d3.select('#indivAudioFeaturesChart');
-    var containerWidth = chartContainer.node()
-        ? chartContainer.node().getBoundingClientRect().width
-        : false;
-
-    barChart.width(containerWidth).height(300).isAnimated(true).horizontal(false).percentageAxisToMaxRatio(1.3).on('customMouseOver', chartTooltip.show).on('customMouseMove', chartTooltip.update).on('customMouseOut', chartTooltip.hide).colorSchema(["#d53e4f", "#fc8d59", "#3288bd", "#e6f598", "#99d594"]);
-
-    chartContainer.datum(features).call(barChart);
-
-    var tooltipContainer = chartContainer.select('.metadata-group'); // Do this only after chart is display, `.metadata-group` is a part of the chart's generated SVG
-    tooltipContainer.datum([]).call(chartTooltip);
-}
-
-// CHART: averages of audio features for user's top tracks
-function avgAudioFeaturesChart(averagesData) {
-
-    $('#faveFeatures').empty();
-
-    var barChart = new britecharts.bar();
-    var chartTooltip = new britecharts.miniTooltip();
-
-    var chartContainer = d3.select('#faveFeatures');
-    var containerWidth = chartContainer.node()
-        ? chartContainer.node().getBoundingClientRect().width
-        : false;
-
-    barChart.width(containerWidth).height(300).isAnimated(true).horizontal(false).percentageAxisToMaxRatio(1.3).on('customMouseOver', chartTooltip.show).on('customMouseMove', chartTooltip.update).on('customMouseOut', chartTooltip.hide).colorSchema(["#d53e4f", "#fc8d59", "#3288bd", "#e6f598", "#99d594"]);
-
-    chartContainer.datum(averagesData).call(barChart);
-
-    var tooltipContainer = chartContainer.select('.metadata-group'); // Do this only after chart is display, `.metadata-group` is a part of the chart's generated SVG
-    tooltipContainer.datum([]).call(chartTooltip);
-}
