@@ -252,18 +252,14 @@ function startApp() {
 
 
 
+/** --------------------------------------------
+ *   Audio Analsys
+ *----------------------------------------------------**/
+$('#short_term_audio').on('click',function(){
 
-
-
-    // USER TOP TRACKS Long TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    $("#getFaveAudioFeatures").on('click', function() {
-        $('#recentFaveFeatures').css("background-color", 'rgb(255, 255, 255)');
-        $('#getFaveAudioFeatures').css("background-color", '#A2FBD0');
-        $('.showDefinitions').fadeIn('fast');
-        $('.recent').hide();
-        $('.longterm').fadeIn('fast');
+        console.log("Getting Audio Stats...")
         $.ajax({
-            url: "https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50",
+            url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10",
             type: "GET",
             dataType: "json",
             beforeSend: function(xhr) {
@@ -283,166 +279,22 @@ function startApp() {
             }
         });
 
-        function getAudioFeatures(idString) {
-            $.ajax({
-                url: "https://api.spotify.com/v1/audio-features?",
-                type: "GET",
-                data: {
-                    ids: idString
-                },
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-                },
-                success: function(data) {
-                    var totals = {
-                        energy: 0,
-                        danceability: 0,
-                        liveness: 0,
-                        acousticness: 0,
-                        valence: 0,
-                        tempo: 0,
-                        duration_ms: 0,
-                        speechiness: 0
-                    };
-
-                    data.audio_features.forEach(function(audioFeature) {
-                        for (let prop in totals) {
-                            totals[prop] += audioFeature[prop];
-                        }
-                    });
-
-                    var averagesData = [
-                        {
-                            name: "energy",
-                            description: "Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy.",
-                            value: totals.energy / data.audio_features.length
-                        }, {
-                            name: "danceability",
-                            description: "Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.",
-                            value: totals.danceability / data.audio_features.length
-                        }, {
-                            name: "liveness",
-                            description: "Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live.",
-                            value: totals.liveness / data.audio_features.length
-                        }, {
-                            name: "acousticness",
-                            description: "A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.",
-                            value: totals.acousticness / data.audio_features.length
-                        }, {
-                            name: "valence",
-                            description: "A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).",
-                            value: totals.valence / data.audio_features.length
-                        }, {
-                            name: "speechiness",
-                            description: "Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks.",
-                            value: totals.speechiness / data.audio_features.length
-                        }
-                    ];
-
-                    console.log('sending averages to chart: ', averagesData);
-                    avgAudioFeaturesChart(averagesData);
-                }
-            });
+        //Helper: Gets Audio Features for given IDs
+        function getAudioFeatures(id){
+            console.log(id)
         }
-    });
 
-    // USER TOP TRACKS short TERM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    $("#recentFaveFeatures, #next1").click(function() {
-        $('.longterm').hide();
-        $('#recentFaveFeatures').css("background-color", '#A2FBD0');
-        $('#getFaveAudioFeatures').css("background-color", 'rgb(255, 255, 255)');
-        $('.recent').fadeIn('fast');
-        $('.showDefinitions').fadeIn('fast');
-        $.ajax({
-            url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50",
-            type: "GET",
-            dataType: "json",
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-            },
-            success: function(data) {
 
-                // data to array
-                var ids = data.items.map(function(track) {
-                    return track.id;
-                });
 
-                console.log(`Track IDs: ${ids}`)
+})
 
-                // array to string
-                var idString = ids.join();
 
-                console.log(`Track IDs: ${idString}`)
-
-                //call other function to do other ajax req
-                getAudioFeatures(idString);
-            }
-        });
-
-        function getAudioFeatures(idString) {
-            $.ajax({
-                url: "https://api.spotify.com/v1/audio-features?",
-                type: "GET",
-                data: {
-                    ids: idString
-                },
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-                },
-                success: function(data) {
-                    var totals = {
-                        energy: 0,
-                        danceability: 0,
-                        liveness: 0,
-                        // instrumentalness: 0,
-                        valence: 0,
-                        tempo: 0,
-                        duration_ms: 0,
-                        speechiness: 0
-                    };
-
-                    data.audio_features.forEach(function(audioFeature) {
-                        for (let prop in totals) {
-                            totals[prop] += audioFeature[prop];
-                        }
-                    });
-
-                    var averagesData = [
-                        {
-                            name: "energy",
-                            description: "Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy.",
-                            value: totals.energy / data.audio_features.length
-                        }, {
-                            name: "danceability",
-                            description: "Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.",
-                            value: totals.danceability / data.audio_features.length
-                        }, {
-                            name: "liveness",
-                            description: "Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live.",
-                            value: totals.liveness / data.audio_features.length
-                        }, {
-                            name: "acousticness",
-                            description: "A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.",
-                            value: totals.acousticness / data.audio_features.length
-                        }, {
-                            name: "valence",
-                            description: "A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).",
-                            value: totals.valence / data.audio_features.length
-                        }, {
-                            name: "speechiness",
-                            description: "Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks.",
-                            value: totals.speechiness / data.audio_features.length
-                        }
-                    ];
-                    console.log('sending averages to chart: ', averagesData);
-                    avgAudioFeaturesChart(averagesData);
-                }
-            });
-        }
-    });
 
     // END OF STARTUP  =================================================
 }
+
+
+
 
 // EXTERNAL FUNCTIONS  =================================================
 
