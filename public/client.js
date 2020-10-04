@@ -279,9 +279,22 @@ $('#short_term_audio').on('click',function(){
             }
         });
 
-        //Helper: Gets Audio Features for given IDs
-        function getAudioFeatures(id){
-            console.log(id)
+        //Helper AJAX function: Gets Audio Features for a list of given IDs
+        function getAudioFeatures(idList){
+            $.ajax({
+                url: "https://api.spotify.com/v1/audio-features?",
+                type: "GET",
+                data: {ids:idList}, //Required Route Parameter
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                },
+                success: function(data) {
+                    console.log(data);
+                }
+            });
+
+
+
         }
 
 
