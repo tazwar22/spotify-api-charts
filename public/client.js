@@ -65,6 +65,8 @@ $(document).ready(function() {
 // START APP ===========================================================================
 function startApp() {
 
+    
+
     // show and hide audio definitions
     $('.showDefinitions').on('click', function() {
         $('.definitions').fadeIn('fast');
@@ -529,6 +531,10 @@ function bubbleChart() {
                             .interpolator(d3.interpolateBlues);
 
 
+        
+
+        //Transition time
+        const TRANSITION_TIME = 1500;
 
         //Manipulate the blobs
         var node = svg.selectAll("circle")
@@ -544,11 +550,17 @@ function bubbleChart() {
                 .attr('transform', 'translate(' + [width / 2,height / 2] + ')')  //center everything
                 .on("mouseover", function(d) {
 
+                    var t = d3.transition()
+                            .duration(TRANSITION_TIME);
+
                     d3.select(this)
+                        .transition(t)
                         .style('opacity', '0.6')
                         .style('stroke', "black")
-                        .style("stroke-width", 8)
+                        .style("stroke-width", 20)
+                        .style("fill", "red")
 
+                    //Get the image
                     let artistImageTag = `<img src = "${d.images[1].url}" alt = "Artist Image" width="200" height="200">`
 
                     let htmlText = d[columnForColors] 
@@ -559,13 +571,20 @@ function bubbleChart() {
                     tooltip.html(htmlText);
                     return tooltip.style("visibility", "visible");
                 })
-                .on("mousemove", function() {
+                .on("mousemove", function(d) {
                     return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function(d) {
+                    //Create a Transition effect
+                    var trans = d3
+                                .transition()
+                                .duration(TRANSITION_TIME);
                     d3.select(this)
+                        .transition(trans)
                         .style('opacity', '1')
                         .style('stroke', "none")
+                        .style("fill", colorScaler(d.index+1))
+
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(d){
